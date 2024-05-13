@@ -2,6 +2,7 @@ package com.example.dbmigration;
 
 import com.example.dbmigration.entity.Member;
 import com.example.dbmigration.entity.Team;
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -117,4 +118,45 @@ public class QuerydslBasicTest {
                 .fetch();
         assertThat(result1.size()).isEqualTo(1);
     }
+
+    @Test
+    public void resultFetch(){
+        // fetch: 리스트 조회
+        List<Member> fetch = queryFactory
+                .selectFrom(member)
+                .fetch();
+        System.out.println("fetch = " + fetch);
+
+        // fetchOne(): 단건 조회. 결과가 둘 이상일시 NonUniqueResultException
+        Member fetchOne = queryFactory
+                .selectFrom(member)
+                .where(member.age.eq(10))
+                .fetchOne();
+        System.out.println("fetchOne = " + fetchOne);
+
+        // fetchFirst(): limit(1).fetchOne()
+        Member fetchFirsst = queryFactory
+                .selectFrom(member)
+                .fetchFirst();
+        System.out.println("fetchFirsst = " + fetchFirsst);
+
+        // fetchResults: 페이징에서 사용
+        // limit, offset, total 등 제공
+        // 단 어플리케이션의 규모가 커질수록 잘 사용하지 않는다 (페이징 정보 따로 구현)
+        QueryResults<Member> results = queryFactory
+                .selectFrom(member)
+                .fetchResults();
+        System.out.println("results = " + results);
+
+        Long total = results.getTotal();
+        List<Member> members = results.getResults();
+        System.out.println("total = " + total);
+        System.out.println(members);
+
+        Long total2 = queryFactory
+                .selectFrom(member)
+                .fetchCount();
+        System.out.println("total2 = " + total2);
+    }
+
 }
