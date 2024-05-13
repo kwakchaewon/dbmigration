@@ -175,4 +175,32 @@ public class QuerydslBasicTest {
         System.out.println("members = " + members);
     }
 
+    @Test
+    public void paging1(){
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .orderBy(member.username.desc())
+                .offset(1) // 0부터 시작 (zero index)
+                .limit(2) // 최대 2건 조회
+                .fetch();
+
+        System.out.println("result = " + result);
+        assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void paging2(){
+        QueryResults<Member> result = queryFactory
+                .selectFrom(member)
+                .orderBy(member.username.desc())
+                .offset(1) // 시작 데이터 위치 조정. 0부터 시작 (zero index)
+                .limit(2) // 가져올 데이터 개수 설정. 최대 2건 조회
+                .fetchResults();
+
+        System.out.println("result.total = " + result.getTotal());
+        System.out.println("result.limit = " + result.getLimit());
+        System.out.println("result.offset = " + result.getOffset());
+        System.out.println("result.size = " + result.getResults().size());
+    }
+
 }
