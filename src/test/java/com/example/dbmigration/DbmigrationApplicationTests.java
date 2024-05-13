@@ -1,14 +1,15 @@
 package com.example.dbmigration;
 
-import com.example.dbmigration.entity.Hello;
-import com.example.dbmigration.entity.Member;
-import com.example.dbmigration.entity.QHello;
-import com.example.dbmigration.entity.Team;
+import com.example.dbmigration.dto.ReadMemberReturnDto;
+import com.example.dbmigration.entity.*;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.assertj.core.api.Assertions;
+import org.hibernate.criterion.Projection;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -25,7 +26,15 @@ class DbmigrationApplicationTests {
     @Autowired
     EntityManager em;
 
+    private JPAQueryFactory jpaquery() {
+        return new JPAQueryFactory(em);
+    }
+
+    private QTeam team = QTeam.team;
+    private QMember member = QMember.member;
+
     @Test
+    @Commit
     void contextLoads() {
         Hello hello = new Hello();
         em.persist(hello);
@@ -42,7 +51,8 @@ class DbmigrationApplicationTests {
     }
 
     @Test
-    public void testEntity(){
+    @Commit
+    public void testEntity() {
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
 
@@ -58,18 +68,24 @@ class DbmigrationApplicationTests {
         em.persist(member2);
         em.persist(member3);
         em.persist(member4);
-        
+
         // 초기화
         em.flush(); // 영속성 컨텍스트 즉시 반영
         em.clear(); // 영속성 컨텍스트 비우기
 
-        List<Member> members = em.createQuery("select m from Member m", Member.class)
-                .getResultList();
+//        List<Member> members = em.createQuery("select m from Member m", Member.class)
+//                .getResultList();
 
-        for (Member member : members) {
-            System.out.println("member = " + member);
+        List<ReadMemberReturnDto> members = jpaquery().select(Projections.constructor(ReadMemberReturnDto.class,
+                member.id, team.name, member.username, member.age
+                ))
+                .from(member)
+                .leftJoin(team).on(member.teamId.eq(team.id))
+                .fetch();
+
+        for (ReadMemberReturnDto member : members) {
+            System.out.println("member = " + member.toString());
         }
-        
     }
 
 

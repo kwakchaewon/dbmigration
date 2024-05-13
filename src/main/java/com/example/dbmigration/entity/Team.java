@@ -16,7 +16,7 @@ import javax.persistence.Id;
 @NoArgsConstructor
 public class Team {
     @Id @GeneratedValue
-    private Long id;
+    private int id;
     private String name;
 
     public Team(String name) {

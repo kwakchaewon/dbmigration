@@ -15,7 +15,7 @@ import javax.persistence.Id;
 public class Member {
     @Id @GeneratedValue
     @Column(name = "member_id")
-    private long id;
+    private Long id;
     private String username;
     private int age;
     private int teamId;
