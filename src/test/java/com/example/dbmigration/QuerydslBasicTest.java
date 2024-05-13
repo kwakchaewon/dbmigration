@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
+import java.util.List;
+
 import static com.example.dbmigration.entity.QMember.member;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -75,5 +77,44 @@ public class QuerydslBasicTest {
         // 3. 문자열로 작성하는 JPQL 과 다르게 Querydsl 은 자바 객체를 생성하기 때문에
         // 컴파일 시점에서 오류를 발견할 수 있다.
         assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
+
+    @Test
+    public void Search(){
+        Member findMember = queryFactory
+                .selectFrom(member)
+                .where(member.username.eq("member1")
+                        .and(member.age.eq(10)))
+                .fetchOne();
+
+        // 검색 조건 예시
+//        member.username.eq("member1") // username = 'member1'
+//        member.username.ne("member1") //username != 'member1'
+//        member.username.eq("member1").not() // username != 'member1'
+//        member.username.isNotNull() //이름이 is not null
+//        member.age.in(10, 20) // age in (10,20)
+//        member.age.notIn(10, 20) // age not in (10, 20)
+//        member.age.between(10,30) //between 10, 30
+//        member.age.goe(30) // age >= 30
+//        member.age.gt(30) // age > 30
+//        member.age.loe(30) // age <= 30
+//        member.age.lt(30) // age < 30
+//        member.username.like("member%") //like 검색
+//        member.username.contains("member") // like ‘%member%’ 검색
+//        member.username.startsWith("member") //like ‘member%’ 검색
+
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
+    
+    @Test
+    public void SearchAndParam(){
+        // where 절의 파라미터의 and 는 생략할 수 있음
+        // 조건이 null 일 경우 조건 무시 -> 추후 동적 쿼리 만들 때 사용되는 개념
+        List<Member> result1 = queryFactory
+                .selectFrom(member)
+                .where(member.username.eq("member1"),
+                        member.age.eq(10), null)
+                .fetch();
+        assertThat(result1.size()).isEqualTo(1);
     }
 }
