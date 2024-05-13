@@ -1,0 +1,22 @@
+spring:
+  profiles:
+    active: singledb
+  application:
+    name:dbmigration
+
+
+# spring.jpa.hibernate.ddl-auto: create 테이블 drop 후 다시 생성
+# show_sql : hibernate 가 db 에 날리는 모든 쿼리 출력
+# format_sql: 쿼리 예쁘게 포맷팅
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    defer-datasource-initialization: true
+
+logging:
+  level:
+    org.hibernate.sql: debug
