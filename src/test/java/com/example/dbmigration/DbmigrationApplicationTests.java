@@ -34,7 +34,6 @@ class DbmigrationApplicationTests {
     private QMember member = QMember.member;
 
     @Test
-    @Commit
     void contextLoads() {
         Hello hello = new Hello();
         em.persist(hello);
@@ -51,7 +50,6 @@ class DbmigrationApplicationTests {
     }
 
     @Test
-    @Commit
     public void testEntity() {
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
