@@ -159,4 +159,20 @@ public class QuerydslBasicTest {
         System.out.println("total2 = " + total2);
     }
 
+    @Test
+    public void sort(){
+        em.persist(new Member(null, 100, 1));
+        em.persist(new Member("member5", 100, 2));
+        em.persist(new Member("member6", 100, 2));
+
+        // nullLast(), nullFirst() 로 null 데이터의 순서를 부여할 수 있음
+        List<Member> members = queryFactory
+                .selectFrom(member)
+                .where(member.age.eq(100))
+                .orderBy(member.username.asc().nullsFirst())
+                .fetch();
+
+        System.out.println("members = " + members);
+    }
+
 }
