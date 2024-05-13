@@ -6,8 +6,9 @@ spring:
 
 
 # spring.jpa.hibernate.ddl-auto: create 테이블 drop 후 다시 생성
-# show_sql : hibernate 가 db 에 날리는 모든 쿼리 출력
+# show_sql : hibernate 가 db 에 날리는 모든 쿼리 출력 (system.out)
 # format_sql: 쿼리 예쁘게 포맷팅
+# show_sql: System.out 에 하이버네이트 실행 SQL 남김 (가급적 지양)
   jpa:
     hibernate:
       ddl-auto: create
@@ -15,8 +16,10 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
-    defer-datasource-initialization: true
+#    defer-datasource-initialization: true
 
-logging:
-  level:
-    org.hibernate.sql: debug
+# org.hibernate.sql : logger 를 통해 하이버네이트 실행 SQL 남김
+# org.hibernate.type: 쿼리 파라미터 로그 남기기 (운영 단게에서는 반드시 성능 테스트를 하고 사용하는 것이 좋음)
+logging.level:
+  org.hibernate.sql: info
+  org.hibernate.type: trace
