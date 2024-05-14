@@ -10,6 +10,7 @@ import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -408,5 +409,24 @@ public class QuerydslBasicTest {
                 .from(member)
                 .fetch();
         System.out.println("strings2 = " + strings2);
+    }
+
+    @Test
+    public void concatChar(){
+//        Tuple result = queryFactory
+//                .select(member.username, Expressions.constant("A"))
+//                .from(member)
+//                .fetchFirst();
+//
+//        System.out.println("result = " + result);
+
+        // membername_age
+        String result2 = queryFactory
+                .select(member.username.concat("_").concat(member.age.stringValue()))
+                .from(member)
+                .where(member.username.eq("member2"))
+                .fetchOne();
+
+        System.out.println("result2 = " + result2);
     }
 }
