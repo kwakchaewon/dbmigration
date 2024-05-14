@@ -9,6 +9,7 @@ import com.example.dbmigration.entity.Team;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -383,5 +384,29 @@ public class QuerydslBasicTest {
                 .fetch();
     }
 
-    
+    // case
+    @Test
+    public void selelctCase(){
+        // 1. 간단한 조건
+        List<String> strings = queryFactory
+                .select(member.age
+                        .when(10).then("열살")
+                        .when(12).then("열두살")
+                        .otherwise("나이 많아요"))
+                .from(member)
+                .fetch();
+
+        System.out.println("strings = " + strings);
+
+        // 2. 복잡한 조건
+        List<String> strings2 = queryFactory
+                .select(new CaseBuilder()
+                        .when(member.age.between(0,14)).then("어린이")
+                        .when(member.age.between(15,16)).then("청소년")
+                        .otherwise("기타")
+                )
+                .from(member)
+                .fetch();
+        System.out.println("strings2 = " + strings2);
+    }
 }
