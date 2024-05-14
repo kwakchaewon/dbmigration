@@ -268,4 +268,36 @@ public class QuerydslBasicTest {
         System.out.println("Average age by team = " + readMemberReturnDtos2);
     }
 
+    /**
+     * 팀 A에 소속된 모든 회원
+     */
+    @Test
+    public void join(){
+        List<Member> members = queryFactory
+                .selectFrom(member)
+                .leftJoin(team)
+                .on(team.id.eq(member.teamId))
+                .where(team.name.eq("teamA"))
+                .fetch();
+
+        System.out.println("members = " + members);
+    }
+
+    /**
+     * 세타조인: 연관 관계가 없는 필드로 조인
+     * 회원이름과 팀이름이 같은 회원 조회
+     */
+    @Test
+    public void theta_join() {
+        em.persist(new Member("teamA", 20, 1));
+        em.persist(new Member("teamB", 20, 1));
+
+        List<Member> members = queryFactory
+                .select(member)
+                .from(member, team)
+                .where(member.username.eq(team.name))
+                .fetch();
+
+        System.out.println("members = " + members);
+    }
 }
