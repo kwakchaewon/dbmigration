@@ -1,7 +1,9 @@
 package com.example.dbmigration;
 
+import com.example.dbmigration.dto.MemberDto;
 import com.example.dbmigration.dto.ReadMemberAvgAgeDto;
 import com.example.dbmigration.dto.ReadMemberReturnDto;
+import com.example.dbmigration.dto.UserDto;
 import com.example.dbmigration.entity.Member;
 import com.example.dbmigration.entity.QMember;
 import com.example.dbmigration.entity.QTeam;
@@ -429,4 +431,58 @@ public class QuerydslBasicTest {
 
         System.out.println("result2 = " + result2);
     }
+
+    // Dto 반환시 setter
+    // 유연성이 높고 필드에 대한 접근과 수정이 자유로움
+    @Test
+    public void findBySetter(){
+        List<MemberDto> memberDtos1 = queryFactory
+                .select(Projections.bean(MemberDto.class,
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
+
+        System.out.println("memberDtos1 = " + memberDtos1);
+    }
+
+    // Dto 변환시 field
+    // 직관적이지만 필드에 접근할 수 있으므로 불변성 보장이 어려움
+    @Test
+    public void findByField(){
+        List<MemberDto> memberDtos2 = queryFactory
+                .select(Projections.fields(MemberDto.class,
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
+
+        System.out.println("memberDtos2 = " + memberDtos2);
+
+        // 필드명이 다를 경우 별칭 설정
+        List<UserDto> memberDtos3 = queryFactory
+                .select(Projections.fields(UserDto.class,
+                        member.username.as("name"),
+                        member.age))
+                .from(member)
+                .fetch();
+
+        System.out.println("memberDtos3 = " + memberDtos3);
+    }
+
+    // Constuctor 방식
+    // 불변성 보장. 객체 생성시 필수적인 값들 강제
+    @Test
+    public void findByConstructor(){
+        List<MemberDto> memberDtos = queryFactory
+                .select(Projections.constructor(MemberDto.class,
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
+
+        System.out.println("memberDtos = " + memberDtos);
+    }
+
+
 }
