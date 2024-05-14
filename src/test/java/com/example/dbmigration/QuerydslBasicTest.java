@@ -9,6 +9,7 @@ import com.example.dbmigration.entity.Team;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -315,4 +316,72 @@ public class QuerydslBasicTest {
         System.out.println("result = " + result);
     }
 
+    /**
+     * 나이가 가장 많은 회원 조회1
+     */
+    @Test
+    public void subQuery1(){
+        Member member1 = queryFactory
+                .selectFrom(member)
+                .orderBy(member.age.desc())
+                .fetchFirst();
+
+        System.out.println("member1 = " + member1);
+    }
+
+    /**
+     *  나이가 가장 많은 회원들 조회2
+     */
+    @Test
+    public void subQuery2(){
+        QMember member2 = new QMember("member2");
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .where(member.age.eq(
+                        JPAExpressions
+                                .select(member2.age.max())
+                                .from(member2)
+                ))
+                .fetch();
+
+        System.out.println("result = " + result);
+    }
+
+    /**
+     * 평균 나이 이상인 회원 리스트
+     */
+    @Test
+    public void subQuery3(){
+        QMember member2 = new QMember("member2");
+        
+        List<Member> members = queryFactory
+                .selectFrom(member)
+                .where(member.age.goe(
+                        JPAExpressions
+                                .select(member2.age.avg())
+                                .from(member2)
+                ))
+                .fetch();
+
+        System.out.println("members = " + members);
+    }
+
+    // in 서브쿼리 예제
+    @Test
+    public void subQueryIn(){
+        QMember member2 = new QMember("member2");
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .where(member.age.in(
+                        JPAExpressions
+                                .select(member2.age)
+                                .from(member2)
+                                .where(member2.age.gt(10))
+                ))
+                .fetch();
+    }
+
+    
 }
