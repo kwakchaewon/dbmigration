@@ -1,8 +1,14 @@
 package com.example.dbmigration;
 
+import com.example.dbmigration.dto.ReadMemberAvgAgeDto;
+import com.example.dbmigration.dto.ReadMemberReturnDto;
 import com.example.dbmigration.entity.Member;
+import com.example.dbmigration.entity.QMember;
+import com.example.dbmigration.entity.QTeam;
 import com.example.dbmigration.entity.Team;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,11 +28,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QuerydslBasicTest {
     @Autowired
     EntityManager em;
-
     JPAQueryFactory queryFactory;
+    private QMember member = QMember.member;
+    private QTeam team = QTeam.team;
 
     @BeforeEach
     public void before(){
+        em.clear();
+
         queryFactory = new JPAQueryFactory(em);
 
         Team teamA = new Team("teamA");
@@ -201,6 +210,62 @@ public class QuerydslBasicTest {
         System.out.println("result.limit = " + result.getLimit());
         System.out.println("result.offset = " + result.getOffset());
         System.out.println("result.size = " + result.getResults().size());
+    }
+
+    @Test
+    public void aggregation(){
+        List<Tuple> result = queryFactory
+                .select(
+                        member.count(),
+                        member.age.sum(),
+                        member.age.avg(),
+                        member.age.max(),
+                        member.age.min()
+                )
+                .from(member)
+                .fetch();
+
+        System.out.println("result = " + result);
+
+        Tuple tuple = result.get(0);
+        System.out.println("tuple = " + tuple);
+        assertThat(tuple.get(member.count())).isEqualTo(4);
+        assertThat(tuple.get(member.age.sum())).isEqualTo(52);
+        assertThat(tuple.get(member.age.avg())).isEqualTo(13);
+        assertThat(tuple.get(member.age.max())).isEqualTo(16);
+        assertThat(tuple.get(member.age.min())).isEqualTo(10);
+    }
+
+    /**
+     * 팀 이름과 각 팀의 평균 연령을 구하라
+     */
+    @Test
+    public void group(){
+        List<Member> members = queryFactory
+                .selectFrom(member)
+                .fetch();
+        System.out.println("members = " + members);
+
+        // 팀별 멤버 정보
+        List<ReadMemberReturnDto> readMemberReturnDtos1 = queryFactory
+                .select(Projections.constructor(ReadMemberReturnDto.class,
+                        member.id, team.name, member.username, member.age))
+                .from(member)
+                .leftJoin(team).on(member.teamId.eq(team.id))
+                .fetch();
+
+        System.out.println("Team Info = " + readMemberReturnDtos1);
+
+        // 팀별 평균 연령 정보: age 와 avg(age) 는 사용하는 자바 타입이 다르기 때문에 다른 필드 또는 다른 dto 로 선언
+        List<ReadMemberAvgAgeDto> readMemberReturnDtos2 = queryFactory
+                .select(Projections.constructor(ReadMemberAvgAgeDto.class,
+                        team.name, member.age.avg()))
+                .from(member)
+                .leftJoin(team).on(member.teamId.eq(team.id))
+                .groupBy(team.name)
+                .fetch();
+
+        System.out.println("Average age by team = " + readMemberReturnDtos2);
     }
 
 }

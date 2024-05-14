@@ -13,6 +13,11 @@ public class ReadMemberReturnDto {
         this.age = age;
     }
 
+    public ReadMemberReturnDto(String teamName, int age) {
+        this.teamName = teamName;
+        this.age = age;
+    }
+
     @Override
     public String toString() {
         return "ReadMemberReturnDto{" +
