@@ -5,6 +5,7 @@ import com.example.dbmigration.entity.Member;
 import com.example.dbmigration.entity.QMember;
 import com.example.dbmigration.entity.QTeam;
 import com.example.dbmigration.entity.Team;
+import com.example.dbmigration.entitymanager.MemberBooleanExpression;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
@@ -33,6 +34,9 @@ public class QuerydslBasicTest {
     JPAQueryFactory queryFactory;
     private QMember member = QMember.member;
     private QTeam team = QTeam.team;
+
+    @Autowired
+    private MemberBooleanExpression memberBooleanExpression;
 
     @BeforeEach
     public void before(){
@@ -493,5 +497,31 @@ public class QuerydslBasicTest {
                 .fetch();
 
         System.out.println("memberDtos = " + memberDtos);
+    }
+
+    @Test
+    public void dynamicQuery_BooleanBuilder(){
+        List <MemberDto> members = queryFactory
+                .select(Projections.constructor(MemberDto.class,
+                        member.username, member.age))
+                .from(member)
+                .where(
+                        memberBooleanExpression.usernameEq("member2")
+                                .or(memberBooleanExpression.ageEq(10))
+                )
+                .fetch();
+
+        System.out.println("members = " + members);
+
+        List <MemberDto> members2 = queryFactory
+                .select(Projections.constructor(MemberDto.class,
+                        member.username, member.age))
+                .from(member)
+                .where(
+                        memberBooleanExpression.searchByKeyword("member1",10)
+                )
+                .fetch();
+
+        System.out.println("members2 = " + members2);
     }
 }
