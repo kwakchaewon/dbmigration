@@ -17,9 +17,9 @@ public class MemberBooleanExpression {
     }
 
     public BooleanExpression searchByKeyword(String username, Integer age){
-        if (username != null && age != null) return member.username.eq(username).and(member.age.eq(age));
-        else if (username != null) return member.username.eq(username);
-        else if (age!=null) return member.age.eq(age);
+        if (username != null && age != null) return this.usernameEq(username).and(this.ageEq(age));
+        else if (username != null) return this.usernameEq(username);
+        else if (age!=null) return this.ageEq(age);
         else return null;
     }
 }
