@@ -1,9 +1,6 @@
 package com.example.dbmigration;
 
-import com.example.dbmigration.dto.MemberDto;
-import com.example.dbmigration.dto.ReadMemberAvgAgeDto;
-import com.example.dbmigration.dto.ReadMemberReturnDto;
-import com.example.dbmigration.dto.UserDto;
+import com.example.dbmigration.dto.*;
 import com.example.dbmigration.entity.Member;
 import com.example.dbmigration.entity.QMember;
 import com.example.dbmigration.entity.QTeam;
@@ -484,5 +481,17 @@ public class QuerydslBasicTest {
         System.out.println("memberDtos = " + memberDtos);
     }
 
+    // @QueryProjection 활용
+    // 장점: 컴파일러로 타입 체크 가능
+    // 단점: Dto 가 QueryDSL 어노테이션을 가지고 있어 순결이 없어짐
+    // QDto 파일 생성해야함
+    @Test
+    public void findByQueryprojection(){
+        List<MemberDto> memberDtos = queryFactory
+                .select(new QMemberDto(member.username, member.age))
+                .from(member)
+                .fetch();
 
+        System.out.println("memberDtos = " + memberDtos);
+    }
 }
