@@ -300,4 +300,19 @@ public class QuerydslBasicTest {
 
         System.out.println("members = " + members);
     }
+
+    /**
+     * 회원과 팀을 조회하면서 팀 이름이 teamA인 팀만 조인, 회원은 모두 조회
+     */
+    @Test
+    public void join_on_filtering(){
+        List<Tuple> result = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(team).on(team.id.eq(member.teamId))
+                .fetch();
+
+        System.out.println("result = " + result);
+    }
+
 }
